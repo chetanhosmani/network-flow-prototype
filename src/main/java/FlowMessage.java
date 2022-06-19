@@ -2,7 +2,6 @@ public class FlowMessage {
 
     public static final String paramHour = "hour";
 
-
     String src_app;
     String dest_app;
     String vpc_id;
@@ -10,4 +9,8 @@ public class FlowMessage {
 
     int bytes_tx;
     int bytes_rx;
+
+    public String generateKey() {
+        return src_app + dest_app + vpc_id + hour;
+    }
 }

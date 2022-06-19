@@ -7,6 +7,7 @@ import io.javalin.http.BadRequestResponse;
 import io.javalin.http.Context;
 import io.javalin.plugin.json.JsonMapper;
 import org.intellij.lang.annotations.Flow;
+import org.jetbrains.annotations.NotNull;
 
 import java.lang.reflect.Type;
 import java.util.Arrays;
@@ -26,13 +27,15 @@ public class NetworkFlowService {
 
     private void setConfig(JavalinConfig config) {
         JsonMapper gsonMapper = new JsonMapper() {
+            @NotNull
             @Override
-            public String toJsonString(Object obj) {
+            public String toJsonString(@NotNull Object obj) {
                 return gson.toJson(obj);
             }
 
+            @NotNull
             @Override
-            public <T> T fromJsonString(String json, Class<T> targetClass) {
+            public <T> T fromJsonString(@NotNull String json, @NotNull Class<T> targetClass) {
                 return gson.fromJson(json, targetClass);
             }
         };
@@ -40,9 +43,10 @@ public class NetworkFlowService {
     }
 
     private void start() {
-        Javalin app = Javalin.create(config -> setConfig(config)).start(7070);
+        Javalin app = Javalin.create(config -> setConfig(config)).start(8080);
         app.get("/flows", ctx -> handleRead(ctx));
         app.post("/flows", ctx -> handleWrite(ctx));
+        app.exception(Exception.class, (e, ctx) -> ctx.status(400));
     }
 
     public static void main(String[] args) {
@@ -63,9 +67,7 @@ public class NetworkFlowService {
             throw new BadRequestResponse();
         }
 
-        String paginationToken = ctx.queryParam("paginationToken");
-
-        List<FlowMessage> messages = handler.readFlows(hour, paginationToken);
+        List<FlowMessage> messages = handler.readFlows(hour);
         ctx.json(messages);
     }
 
