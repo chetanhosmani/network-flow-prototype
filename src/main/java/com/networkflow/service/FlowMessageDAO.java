@@ -1,3 +1,5 @@
+package com.networkflow.service;
+
 import java.util.List;
 
 public interface FlowMessageDAO {
@@ -5,7 +7,7 @@ public interface FlowMessageDAO {
     FlowMessage retrieve(String key);
 
     /**
-     * Retrieve all aggregated FlowMessage for a given hour
+     * Retrieve all aggregated com.networkflow.service.FlowMessage for a given hour
      */
     List<FlowMessage> retrieve(int hour);
 

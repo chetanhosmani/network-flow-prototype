@@ -1,3 +1,5 @@
+package com.networkflow.service;
+
 public class FlowMessage {
 
     public static final String paramHour = "hour";
