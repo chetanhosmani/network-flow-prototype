@@ -35,6 +35,37 @@ To run the load test (after starting up the service)
 java -cp build/libs/network-flow-prototype-1.0-SNAPSHOT-all.jar com.networkflow.service.LoadGenerator
 ```
 
+## Example Calls
+
+```
+curl -i -X POST "localhost:8080/flows" -H 'Content-type: application/json' -d '[{"src_app":"foo-1","dest_app":"bar-1","vpc_id":"vpc-1","hour":2,"bytes_tx":100,"bytes_rx":200},{"src_app":"foo-2","dest_app":"bar-1","vpc_id":"vpc-2","hour":3,"bytes_tx":10,"bytes_rx":20}]'
+```
+
+```
+HTTP/1.1 200 OK
+Date: Mon, 20 Jun 2022 07:53:27 GMT
+Content-Type: text/plain
+Content-Length: 0
+```
+
+```
+curl -s "localhost:8080/flows?hour=2" | jq
+```
+
+```
+[
+  {
+    "src_app": "foo-1",
+    "dest_app": "bar-1",
+    "vpc_id": "vpc-1",
+    "hour": 2,
+    "bytes_tx": 100,
+    "bytes_rx": 200
+  }
+]
+
+```
+
 ## Salient features
 
 ### Java + Gradle
