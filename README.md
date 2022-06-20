@@ -139,15 +139,19 @@ The service is a very simple in-memory implementation and is pretty much limited
 
 - Javalin server thread count is at 250. If each request was handled in 10 ms, the frontend of the service can handle
   250,000 requests per second. However, this was not utilized by the com.networkflow.service.LoadGenerator.
-- The other bottleneck is around AtomicInteger. This resource is a point of contention. For in-memory a LongAdder can
-  provide much better performance. In a database partitioning the key similar to a LongAdder will allow it to support
-  much higher throughput. Again for this test this bottleneck was not the point of contention.
-- ConcurrentHashMap might not scale with very large cardinality of keys. Java memory management can cause fragmentation
-  especially if the entries for a single hour are located in various memory regions. When using a more durable data
-  store like a database or a block device, data can be arranged better by grouping same hour data together. The current
-  solution fragments data in an extremely large ConcurrentHashMap's array.
+- The other bottleneck is around Java's AtomicInteger. AtomicInteger is used for increasing bytes_tx/bytes_rx
+  concurrently without the use of locks. AtomicInteger uses the CPU's CAS. This allows additions to go through without
+  context switching. This resource is a point of contention. For in-memory storage, Java's LongAdder is an alternative
+  to AtomicInteger and can provide much better performance. If the data was persisted in a database, partitioning the
+  key similar to a LongAdder will allow it to support much higher throughput. Again for the tests run this was not the
+  point of contention.
+- Java's ConcurrentHashMap is used to store keys for the data. This might not scale with very large cardinality of keys.
+  Java memory management can cause fragmentation especially if the entries for a single hour are located in various
+  memory regions. When using a more durable data store like a database or a block device, data can be arranged better by
+  grouping same hour data together. When reading, it's much more efficient to read from a large data block than from
+  various locations. The current solution fragments data in an extremely large ConcurrentHashMap's array.
 - Currently, the service runs on a single host and is limited by the resources of the hardware. Building a distributed
-  service will allow it to be horizontally scalable.
+  service will allow it to be horizontally scalable. This requires the use of a distributed database.
 - Service currently uses Gson to serialize/deserialize data. Since the data is simple and immutable there's no need for
   serializing multiple times (Javalin JSON layer, POJOs, etc). For a less resource intensive and faster service,
   protobuf would allow direct aggregation of the request data. This would reduce the latency and CPU consumption.
